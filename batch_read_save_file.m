@@ -1,4 +1,4 @@
-
+fprintf ('hello');
 % pool=startmatlabpool(4);
 % clear all
 % function result=batch_read__save_file(direction,file_type)
