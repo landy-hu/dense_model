@@ -21,7 +21,7 @@ function split_triangle(voxel_size)
      end
 %% break the loop
      lar_dis_a=max(max(A.edge_dis));
-     sma_dis_a=min(min(A.edge_dis));
+%      sma_dis_a=min(min(A.edge_dis));
      if lar_dis_a<=voxel_size%||size(A.edge_dis,1)>300000
          break
      end

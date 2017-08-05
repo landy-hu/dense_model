@@ -1,8 +1,7 @@
 function obj_write(filename,vertices,faces)
-%write?matrix?to? obj file????
-vertices=vertices;
+
 % faces=faces;
-fid=fopen(filename,'a');
+fid=fopen(filename,'w+');%remove the old imformation, write the new information
 [x,y]=size(vertices);
 for i=1:x
    fprintf(fid,'v ');
