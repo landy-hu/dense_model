@@ -1,28 +1,25 @@
 % pool=startmatlabpool(4);
-% clear all
+clear all
 % function result=batch_read__save_file(direction,file_type)
-clear 
 profile on;
-direction='C:\Users\pidan\Documents\MATLAB\test\data\obj\';
-file_type='.pcd';
-file_read=dir(fullfile(direction));
-% file_read.name
-global A;
-% num=15000000;
-% A.f_data=zeros(num,3);
-% A.v_data=zeros(num,3);
-% A.edge_dis=zeros(num,3);
+direction_file='C:\Users\pidan\Documents\MATLAB\test\data\cap\02954340_cap\';
+direction_save_obj='C:\Users\pidan\Documents\MATLAB\test\data\cap\obj_cap\';
+direction_save_mat='C:\Users\pidan\Documents\MATLAB\test\data\cap\mat_cap\';
+file_type='.obj';
+file_read=dir(fullfile(direction_file));
 
-% read_data=cell((length(file_read)),1);
-%%%%fortest
-if strcmp(file_type, '.pcd')
+global A;
+
+if strcmp(file_type, '.obj')
     for i=3:length(file_read)
-        direction='C:\Users\pidan\Documents\MATLAB\test\data\obj\';
-%         strcat(direction,file_read(i).name)
-        fidin=fopen(strcat(direction,file_read(i).name));
-%         if (fidin==NULL)
-%             disp('Can not open the file, Please check the input and the PATH !!');
-%         end
+        v_data=[];
+        f_data=[];
+%         f_inter_data=[];
+
+        fidin=fopen(strcat(direction_file,file_read(i).name));
+        if (~fidin)
+            disp('Can not open the file, Please check the input and the PATH !!');
+        end
         
         ind_v=0;
         ind_f=0;
@@ -35,15 +32,25 @@ if strcmp(file_type, '.pcd')
              else
                  ind_f=ind_f+1;
                  tline=strrep(tline,'/',' ');
-                 f_inter_data(ind_f,:)= str2num(tline(3:end));
+                 tline=str2num(tline(2:end));
+                 
+                 if size(tline,2)==9
+                     num=[tline(1),tline(4),tline(7)];
+                 elseif size(tline,2)==6
+                     num=[tline(1),tline(3),tline(5)];
+                 else
+                     num=tline;
+                 end
+                 f_data(ind_f,:)= num;
              end
         end
-        fclose(fidin);
+        fclose(fidin);  
+        %% 9 datas
+%         f_data=[f_inter_data(:,1),f_inter_data(:,4),f_inter_data(:,7)];
+        %% 6 datas
         
-        f_data=[f_inter_data(:,1),f_inter_data(:,4),f_inter_data(:,7)];
-%         size(f_data);
+%           f_data=[f_inter_data(:,1),f_inter_data(:,3),f_inter_data(:,5)];
 
-        %m=size(f_data,1);
         %% to normalize the point cloud
         point_dis=zeros(size(v_data));     
         for j=1:size(v_data,1)
@@ -52,13 +59,13 @@ if strcmp(file_type, '.pcd')
              point_dis(j,3)=norm(v_data(j,:));
         end
         val_normalization=max(max(point_dis));
-%         X_range=[min(min(v_data(:,1))),max(max(v_data(:,1)))]
-%         Y_range=[min(min(v_data(:,2))),max(max(v_data(:,2)))]
-%         Z_range=[min(min(v_data(:,3))),max(max(v_data(:,3)))]
          v_data=v_data/val_normalization;
-         X_range=[min(min(v_data(:,1))),max(max(v_data(:,1)))];
-         Y_range=[min(min(v_data(:,2))),max(max(v_data(:,2)))];
-         Z_range=[min(min(v_data(:,3))),max(max(v_data(:,3)))];
+         
+         X_range=[(min(v_data(:,1))),(max(v_data(:,1)))]
+         Y_range=[(min(v_data(:,2))),(max(v_data(:,2)))]
+         Z_range=[(min(v_data(:,3))),(max(v_data(:,3)))]
+         size(v_data)
+         size(f_data)
         %% calculate the edge distance
         edge_dis=zeros(size(f_data));
         for j=1:size(f_data,1)
@@ -75,6 +82,7 @@ if strcmp(file_type, '.pcd')
 %         sma_dis=min(min(A.edge_dis))
         voxelsize=(A.range(1,2)-A.range(1,1))/50.00;
         split_triangle(voxelsize);
+        %%orientation
 %         Centroid(1,3)=0;
 %         ver_size=size(A.v_data,1);
 %         Centroid(1)=sum(A.v_data(:,1))/ver_size;
@@ -97,18 +105,13 @@ if strcmp(file_type, '.pcd')
 %        sma_dis_a=min(min(A.edge_dis));
 %         size(A.f_data)
        %% the direction of the saving .pcd and .mat
-        %delete ".pcd"
-        
-        file_read(i).name(end-3:end)=[];
-        direction(end-3:end)=[];
-        %the dir of new_pcd
-        file_name_save_obj=strcat(strrep(file_read(i).name,'.pcd',[]),'.obj');
-        save_dir_obj=strcat(strcat(direction,'new_obj_2\'),file_name_save_obj);
-        obj_write(save_dir_obj,A.v_data,A.f_data);
+          save_dir_obj=strcat(direction_save_obj,file_read(i).name)       
+          obj_write(save_dir_obj,A.v_data,A.f_data);
         % the dir of mat
-        file_name_save_mat=strcat(strrep(file_read(i).name,'.pcd',[]),'.mat');
-        save_dir_mat=strcat(strcat(direction,'pcd_face\'),file_name_save_mat);
-        save(save_dir_mat,'A');
+          file_name_save_mat=strcat(strrep(file_read(i).name,'.obj',[]),'.mat');
+          save_dir_mat=strcat(direction_save_mat,file_name_save_mat)
+          save(save_dir_mat,'A');
+
     end % for i=1:length(file_read)
 end
 

@@ -8,7 +8,7 @@ function voxelGridTDF = pointCloud2TDF(points,xRange,yRange,zRange,voxelSize,vox
 %                       save   gridY;
 %                       save   gridZ;
                     
-
+size(gridX)
 % Build KD-tree and do 1-NN search                         
 modelKDT = KDTreeSearcher(points);
 [nnInd,nnDist] = knnsearch(modelKDT,[gridX(:),gridY(:),gridZ(:)]);
